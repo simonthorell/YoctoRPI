@@ -1,0 +1,30 @@
+services:
+  devcontainer:
+    hostname: container
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_UID: "${UID:-1000}"  # Use the UID of the host user or default to 1000
+        USER_GID: "${GID:-1000}"  # Use the GID of the host user or default to 1000
+    user: "dev"
+    environment:
+      - SSTATE_DIR=/yocto/sstate
+      - DL_DIR=/yocto/dl
+      - TEMPLATECONF=/yocto/project/layer/conf/templates/custom
+      - BUILD_DIR=/yocto/build
+    volumes:
+      - .:/yocto/project
+      - yocto_repo:/yocto/.repo
+      - yocto_build:/yocto/build
+      - yocto_sources:/yocto/sources
+      - yocto_dl:/yocto/dl
+      - yocto_sstate:/yocto/sstate
+    command: sleep infinity
+
+volumes:
+  yocto_repo:
+  yocto_build:
+  yocto_sources:
+  yocto_dl:
+  yocto_sstate:

@@ -1,0 +1,14 @@
+{
+  "name": "Yocto Raspberry Pi",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/yocto/project",
+  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /yocto/project",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "yocto-project.yocto-bitbake"
+      ]
+    }
+  }
+}

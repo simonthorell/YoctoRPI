@@ -1,0 +1,7 @@
+{
+    "cSpell.words": [
+    ],
+    "bitbake.pathToBuildFolder": "${workspaceFolder}/../build",
+    "bitbake.pathToEnvScript": "${workspaceFolder}/../sources/poky/oe-init-build-env",
+    "bitbake.pathToBitbakeFolder": "${workspaceFolder}/../sources/poky/bitbake",
+}

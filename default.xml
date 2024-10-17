@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<remote name="yp" fetch="https://git.yoctoproject.org"/>
+	<remote name="oe" fetch="https://github.com/openembedded"/>
+
+	<project remote="yp" name="poky"              path="sources/poky"              upstream="scarthgap" revision="02eacd385eca7aa9cf25aaaa61427aa9c126e0bc"/>
+	<project remote="oe" name="meta-openembedded" path="sources/meta-openembedded" upstream="scarthgap" revision="a72010b414ee3d73888ac9cb4e310e8f05e13aea"/>
+</manifest>
