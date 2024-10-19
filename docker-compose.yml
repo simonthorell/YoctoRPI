@@ -11,7 +11,7 @@ services:
     environment:
       - SSTATE_DIR=/yocto/sstate
       - DL_DIR=/yocto/dl
-      - TEMPLATECONF=/yocto/project/layer/conf/templates/custom
+      - TEMPLATECONF=/yocto/project/meta_lager/conf/templates/custom
       - BUILD_DIR=/yocto/build
     volumes:
       - .:/yocto/project
@@ -20,6 +20,12 @@ services:
       - yocto_sources:/yocto/sources
       - yocto_dl:/yocto/dl
       - yocto_sstate:/yocto/sstate
+    devices:
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    privileged: true
     command: sleep infinity
 
 volumes:

@@ -6,9 +6,10 @@ Repo använder ett [manifest](default.xml) som beskriver git repon som ska hämt
 
 I detta project hämtas:
 - **poky**: Grundläggande mall för Linux skapade med Yocto
-- **OpenEmbedded**: Byggsystemet för Yocto, ungefär som West är för Zephyr OS.
+- **OpenEmbedded**: ___meta_openembedded___, Byggsystemet för Yocto, ungefär som West är för Zephyr OS.
+- **RaspberryPi**: ___meta_raspberrupy___, Hårdvarulager för RPI enheter
 
-Yocto använder lager och detta project har lagret [layer](layer).
+Yocto använder lager och detta project har [meta_lager](meta_lager). 
 
 ## Steg för steg
 
@@ -54,15 +55,27 @@ bitbake core-image-minimal
 
 ### 4. Kör emulerat
 
+QEMU finns med i Yocto: [runqemu](https://docs.yoctoproject.org/5.0.4/dev-manual/qemu.html)
+
+`nographic` argumentent gör att qemu körs direkt i terminalen. För att avsluta tryck `Ctrl + A` följt av `X`. Alternativt `Ctrl + A` och `C` för att köra kommandot `quit`. 
+
+Utan `nographic` kan man öppna `/dev/ttyS1` med `Ctrl + Alt 2` på samma sätt som om man skulle ha anslutit via serie port: [YouTube](https://www.youtube.com/watch?v=ONvNtz2w-qE).
+
 ```bash
 
 # Kör bygget emulerat med Qemu
-runqemu qemux86
+runqemu qemux86-64
 
 ```
 
 ### 5. Bygg för RPI
-TBC.
+
+
+
+```bash
+# Bygg för rpi5 64bit
+MACHINE=raspberrypi5 bitbake core-image-minimal
+```
 
 ### 6. Skapa RPI SD kort
 TBC.
@@ -71,3 +84,4 @@ TBC.
 ## Länkar
 - [Yocto Manual (Scarthgap 5.04)](https://docs.yoctoproject.org/5.0.4/)
 - [Repo](https://source.android.com/docs/setup/reference/repo)
+- [YouTube - Raspberry Pi Serial Connect to USB via FTDI](https://www.youtube.com/watch?v=ONvNtz2w-qE)

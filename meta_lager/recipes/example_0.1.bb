@@ -1,11 +1,11 @@
-SUMMARY = "bitbake-layers recipe"
-DESCRIPTION = "Recipe created by bitbake-layers"
+SUMMARY = "bitbake-layer recipe"
+DESCRIPTION = "Recipe created by bitbake-layer"
 LICENSE = "MIT"
 
 python do_display_banner() {
     bb.plain("***********************************************");
     bb.plain("*                                             *");
-    bb.plain("*  Example recipe created by bitbake-layers   *");
+    bb.plain("*  Example recipe created by bitbake-layer    *");
     bb.plain("*                                             *");
     bb.plain("***********************************************");
 }

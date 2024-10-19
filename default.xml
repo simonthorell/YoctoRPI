@@ -3,6 +3,7 @@
 	<remote name="yp" fetch="https://git.yoctoproject.org"/>
 	<remote name="oe" fetch="https://github.com/openembedded"/>
 
-	<project remote="yp" name="poky"              path="sources/poky"              upstream="scarthgap" revision="02eacd385eca7aa9cf25aaaa61427aa9c126e0bc"/>
-	<project remote="oe" name="meta-openembedded" path="sources/meta-openembedded" upstream="scarthgap" revision="a72010b414ee3d73888ac9cb4e310e8f05e13aea"/>
+	<project remote="yp" name="poky"              path="sources/poky"              upstream="scarthgap" revision="200d12b6a58ad961d60a7774ca0f7a9d29498724"/>
+	<project remote="oe" name="meta-openembedded" path="sources/meta-openembedded" upstream="scarthgap" revision="72018ca1b1a471226917e8246e8bbf9a374ccf97"/>
+	<project remote="yp" name="meta-raspberrypi"  path="sources/meta-raspberrypi"  upstream="scarthgap" revision="6df7e028a2b7b2d8cab0745dc0ed2eebc3742a17"/>
 </manifest>

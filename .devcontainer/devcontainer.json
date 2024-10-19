@@ -7,7 +7,12 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "yocto-project.yocto-bitbake"
+        "yocto-project.yocto-bitbake",
+        "mads-hartmann.bash-ide-vscode",
+        "timonwong.shellcheck",
+        "foxundermoon.shell-format",
+        "ms-azuretools.vscode-docker",
+        "ms-python.python"
       ]
     }
   }

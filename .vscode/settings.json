@@ -1,7 +1,19 @@
 {
     "cSpell.words": [
     ],
-    "bitbake.pathToBuildFolder": "${workspaceFolder}/../build",
-    "bitbake.pathToEnvScript": "${workspaceFolder}/../sources/poky/oe-init-build-env",
-    "bitbake.pathToBitbakeFolder": "${workspaceFolder}/../sources/poky/bitbake",
+    "bitbake.pathToBuildFolder": "/yocto/build",
+    "bitbake.pathToEnvScript": "/yocto/sources/poky/oe-init-build-env",
+    "bitbake.pathToBitbakeFolder": "/yocto/sources/poky/bitbake",
+    "files.associations": {
+        "*.conf": "bitbake",
+        "*.inc": "bitbake"
+    },
+    "python.autoComplete.extraPaths": [
+        "/yocto/sources/poky/bitbake/lib",
+        "/yocto/sources/poky/meta/lib"
+    ],
+    "python.analysis.extraPaths": [
+        "/yocto/sources/poky/bitbake/lib",
+        "/yocto/sources/poky/meta/lib"
+    ],
 }
