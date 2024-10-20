@@ -9,7 +9,7 @@ I detta project hämtas:
 - **OpenEmbedded**: ___meta_openembedded___, Byggsystemet för Yocto, ungefär som West är för Zephyr OS.
 - **RaspberryPi**: ___meta_raspberrupy___, Hårdvarulager för RPI enheter
 
-Yocto använder lager och detta project har [meta_lager](meta_lager). 
+Yocto använder lager och detta project har [meta-lager](meta-lager). 
 
 ## Steg för steg
 
@@ -49,7 +49,7 @@ Detta tar långt tid. Bitbake cachar bra så det gåt att avbryta med `ctrl+c`.
 ```bash
 
 # Bygg en minimal Linux med Bitbake
-bitbake core-image-minimal
+bitbake -k core-image-minimal
 
 ```
 
@@ -69,8 +69,6 @@ runqemu qemux86-64
 ```
 
 ### 5. Bygg för RPI
-
-
 
 ```bash
 # Bygg för rpi5 64bit

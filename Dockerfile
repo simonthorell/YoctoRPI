@@ -1,34 +1,6 @@
 FROM ubuntu:22.04
 
-# Update system and add the packages required for Yocto builds.
-# Use DEBIAN_FRONTEND=noninteractive, to avoid image build hang waiting
-# for a default confirmation [Y/n] at some configurations.
-
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update && apt install -y gawk wget git-core diffstat unzip \ 
-    texinfo gcc-multilib build-essential chrpath socat file cpio \
-    python3 python3-pip python3-pexpect xz-utils debianutils \
-    libsdl1.2-dev xterm tar locales net-tools rsync sudo vim curl zstd \
-    liblz4-tool libssl-dev bc lzop libgnutls28-dev efitools git-lfs \
-    iputils-ping iproute2 nftables shfmt && \
-    apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-
-# Set up locales
-RUN locale-gen en_US.UTF-8 && \
-    update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-
-# Yocto needs 'source' command for setting up the build environment, so replace
-# the 'sh' alias to 'bash' instead of 'dash'.
-RUN rm /bin/sh && ln -s bash /bin/sh
-
-# Install repo
-ADD https://storage.googleapis.com/git-repo-downloads/repo /usr/local/bin/
-RUN chmod 755 /usr/local/bin/repo
-
-# Setup user and paths
+# Setup user and path arguments
 ARG USER_UID=1000
 ARG USER_GID=1000
 ARG USER_NAME=dev
@@ -39,27 +11,106 @@ ARG REPO_DIR=${YOCTO_DIR}/.repo
 ARG SOURCES_DIR=${YOCTO_DIR}/sources
 ARG DL_DIR=${YOCTO_DIR}/dl
 ARG SSTATE_DIR=${YOCTO_DIR}/sstate
+ARG TMP_DIR=${YOCTO_DIR}/tmp
 
-# Create a group and user with the provided UID, GID, and username, but set a custom home directory
-RUN groupadd -g ${USER_GID} ${USER_NAME} && \
-    useradd -m -u ${USER_UID} -g ${USER_NAME} -s /bin/bash -d ${YOCTO_DIR} ${USER_NAME} && \
-    usermod -aG sudo ${USER_NAME} && \
+# Set the localizations
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# When installing apt packages, we don't want to be prompted for input
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Do all the modifications to the image with a single RUN command
+# to reduce the number of layers. This will make the image smaller.
+# Start with updating the package list
+RUN apt update && \
+    # Install the required packages with -y to avoid being prompted
+    apt install -y \
+    \
+    # Python tools
+    # Yocto requires Python 3 for its build system
+    python3 python3-pip python3-pexpect \
+    \
+    # Network tools
+    # Git is used by Yocto to download source code repositories
+    git-core \
+    # Wget downloads files from the internet (used to retrieve Yocto layers and sources)
+    wget \
+    \
+    # File tools
+    # File is used to determine file types (important in build scripts to identify file formats)
+    file \
+    # Diffstat generates statistics from diff files (used for patch management in Yocto builds)
+    diffstat \
+    # Gawk processes text files for pattern scanning and processing (required by Yocto scripts)
+    gawk \
+    \
+    # Compression tools
+    # Unzip extracts files from zip archives (used for fetching and unpacking Yocto layers or external resources)
+    unzip \
+    # Cpio is used to create and extract cpio archives (Yocto uses it to build root filesystems)
+    cpio \
+    # Xz-utils provides tools to compress and decompress files (commonly used in Yocto to handle tarball sources)
+    xz-utils \
+    # Zstd is a fast lossless compression algorithm (used in various parts of Yocto builds)
+    zstd \
+    # Liblz4-tool is a high-speed compression utility (Yocto can use this for compressing images or archives)
+    liblz4-tool \
+    \
+    # Build tools
+    # Texinfo is used to generate documentation (required by the GNU project, part of some Yocto recipes)
+    texinfo \
+    # GCC-multilib compiles code for multiple architectures (needed for cross-compilation in Yocto)
+    gcc-multilib \
+    # Build-essential is a collection of packages needed to compile software (fundamental to Yocto's build process)
+    build-essential \
+    # Chrpath is used to modify the rpath in ELF executables (useful for fixing binary paths after Yocto builds)
+    chrpath \
+    \
+    # Other tools used by this project
+    # Git based tool by Google to manage multiple repositories
+    repo \
+    # Locales is used to set the locale on the system (Yocto builds may require a specific locale for consistent behavior)
+    locales \
+    # Sudo is used for root privileges (required by runqemu to set up networking)
+    sudo \
+    # iproute2 and iptables are required by runqemu for networking 
+    iproute2 iptables && \
+    \
+    \
+    # Finished installing packages. Continue with the configuration
+    \
+    \
+    # Clean up the package cache to reduce the image size
+    apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    \
+    # Set the locale to en_US.UTF-8 and update the locale
+    locale-gen en_US.UTF-8 && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 && \
+    \
+    # Set the shell to bash because it is required by Yocto
+    rm /bin/sh && ln -s bash /bin/sh && \
+    \
+    # Create a non-root user with the same UID and GID as the host user with sudo privileges
+    groupadd -g "${USER_GID}" "${USER_NAME}" && \
+    useradd -m -u "${USER_UID}" -g "${USER_NAME}" -s /bin/bash -d "${YOCTO_DIR}" "${USER_NAME}" && \
+    usermod -aG sudo "${USER_NAME}" && \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
-    mkdir -p ${PROJECT_DIR} && \
-    mkdir -p ${BUILD_DIR} && \
-    mkdir -p ${REPO_DIR} && \
-    mkdir -p ${SOURCES_DIR} && \
-    mkdir -p ${DL_DIR} && \
-    mkdir -p ${SSTATE_DIR} && \
-    chown -R ${USER_NAME}:${USER_NAME} ${YOCTO_DIR}
+    \
+    # Set up the project folder structure for the created user
+    mkdir -p "${PROJECT_DIR}" "${BUILD_DIR}" "${REPO_DIR}" "${SOURCES_DIR}" "${DL_DIR}" "${SSTATE_DIR}" "${TMP_DIR}" && \
+    chown -R "${USER_NAME}:${USER_NAME}" "${YOCTO_DIR}"
 
-# Set the DL_DIR and SSTATE_DIR environment variables
-ENV DL_DIR=${DL_DIR}
-ENV SSTATE_DIR=${SSTATE_DIR}
-ENV BUILDDIR=${BUILD_DIR}
-ENV SOURCES_DIR=${SOURCES_DIR}
-ENV PROJECT_DIR=${PROJECT_DIR}
-ENV BB_ENV_PASSTHROUGH_ADDITIONS="DL_DIR SSTATE_DIR BUILDDIR SOURCES_DIR PROJECT_DIR"
 
 # Switch to the new non-root user
 USER ${USER_NAME}
+
+# Set the DL_DIR and SSTATE_DIR environment variables
+# ENV PROJECT_DIR=${PROJECT_DIR}
+# ENV SOURCES_DIR=${SOURCES_DIR}
+ENV BUILDDIR=${BUILD_DIR}
+ENV DL_DIR=${DL_DIR}
+ENV SSTATE_DIR=${SSTATE_DIR}
+ENV TMPDIR=${TMP_DIR}
+
+# Allow them to pass into the yocto build environment
+ENV BB_ENV_PASSTHROUGH_ADDITIONS="BUILDDIR DL_DIR SSTATE_DIR TMPDIR"
