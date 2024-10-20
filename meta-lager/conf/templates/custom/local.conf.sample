@@ -43,7 +43,7 @@ DISTRO ??= "custom-distro"
 MACHINE ??= "qemux86-64"
 
 # These are some of the more commonly used values. Looking at the files in the
-# meta/conf/machine directory, or the conf/machine directory of any additional meta_lagers
+# meta/conf/machine directory, or the conf/machine directory of any additional meta-
 # you add in will show all the available machines.
 
 #

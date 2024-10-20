@@ -9,10 +9,7 @@ services:
         USER_GID: "${GID:-1000}"  # Use the GID of the host user or default to 1000
     user: "dev"
     environment:
-      - SSTATE_DIR=/yocto/sstate
-      - DL_DIR=/yocto/dl
-      - TEMPLATECONF=/yocto/project/meta_lager/conf/templates/custom
-      - BUILD_DIR=/yocto/build
+      - TEMPLATECONF=/yocto/project/meta-lager/conf/templates/custom
     volumes:
       - .:/yocto/project
       - yocto_repo:/yocto/.repo
@@ -20,6 +17,7 @@ services:
       - yocto_sources:/yocto/sources
       - yocto_dl:/yocto/dl
       - yocto_sstate:/yocto/sstate
+      - yocto_tmp:/yocto/tmp
     devices:
       - /dev/net/tun
     cap_add:
@@ -34,3 +32,4 @@ volumes:
   yocto_sources:
   yocto_dl:
   yocto_sstate:
+  yocto_tmp:
