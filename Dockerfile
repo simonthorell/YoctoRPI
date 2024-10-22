@@ -76,6 +76,8 @@ RUN apt update && \
     sudo \
     # iproute2 and iptables are required by runqemu for networking 
     iproute2 iptables && \
+    # terminal multiplexer for running menuconfig
+    tmux \
     \
     \
     # Finished installing packages. Continue with the configuration
