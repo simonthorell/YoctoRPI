@@ -68,6 +68,8 @@ RUN apt update && \
     chrpath \
     \
     # Other tools used by this project
+    # Used for menuconfig in the kernel
+    tmux \
     # Git based tool by Google to manage multiple repositories
     repo \
     # Locales is used to set the locale on the system (Yocto builds may require a specific locale for consistent behavior)
@@ -77,7 +79,7 @@ RUN apt update && \
     # iproute2 and iptables are required by runqemu for networking 
     iproute2 iptables && \
     # terminal multiplexer for running menuconfig
-    tmux \
+    \
     \
     \
     # Finished installing packages. Continue with the configuration
