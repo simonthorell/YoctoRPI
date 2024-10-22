@@ -17,6 +17,10 @@
 # if it is not already set (e.g. from the command line)
 DISTRO ??= "custom-distro"
 
+# Needed for RPI core-image-base
+LICENSE_FLAGS_ACCEPTED += "synaptics-killswitch"
+
+
 #
 # Machine Selection
 #
