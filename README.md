@@ -38,7 +38,7 @@ Detta steg måste göras varje gång man öppnar en ny terminal.
 ```bash
 
 # Starta byggmiljön
-source /yocto/sources/poky/oe-init-build-env /yocto/build
+source /yocto/sources/poky/oe-init-build-env /yocto/project
 
 ```
 
@@ -66,7 +66,7 @@ Lösenordet vid inloggning är `root`
 ```bash
 
 # Kör bygget emulerat med Qemu
-runqemu qemux86-64
+runqemu qemux86-64 nographic
 
 ```
 
@@ -100,12 +100,6 @@ I QEMU eller på en RPI kan du köra programmet:
 # Kör programmet
 hello-world
 
-# Se var programmet är installerat
-whereis hello-world
-
-# Se vilka bibliotek programmet använder
-ddl hello-world
-
 # Se information om tjänsten
 systemctl status hello-world
 
@@ -118,13 +112,13 @@ journalctl -u hello-world
 
 ## Konfigurera kärnan
 
-Testa köra menukonfig för att konfigurera kärnan
+Testa köra menukonfig för att konfigurera kärnan enligt: https://github.com/bluez/bluez/wiki/test%E2%80%90runner
 
 ```bash
 bitbake -c menuconfig virtual/kernel 
 ```
 
-## Övning
+## Övning 1
 
 Skapa en egen SystemD som skickar http post anrop till t.ex [webhook.site](https://webhook.site/) eller annan webhook testsida. Vill du använda någon mer avanserad tjänst för att koppla upp enheten t.ex. Leshan eller en MQTT broker direkt i [docker-compose.yml](docker-compose.yml) så går det också utmärkt.
 
@@ -136,8 +130,180 @@ Kopiera receptet [hello-world](meta-lager/recipes-example/hello-world_0.1.bb) ti
 
 Ta bort c programmet hello-world och ändra systemD tjänsten så den heter `hello-internet.service` och postar data direkt med wget.
 
+## Övning 2, Bluetooth
+
+Bygg yocto igen för att få med BlueZ stacken och kernel konfigurationen för att köra bluetooth.
+
+Kör scripter rad för rad. **Kopiera inte hela script**.
+
+### Steg 1 - Starta QEMU
+
+Det finns två alternativ för att köra detta.
+
+### Alternativ 1 - Bygg själv
+
+Funkar inte detta så ladda ner en imagefil från Nackadmin och kör Alternativ 2.
+
+```bash
+# Bygg för custom-distro om det inte redan är satt i konfigurationen 
+DISTRO=custom-distro bitbake -k core-image-base
+```
+
+Kör igång med egen image
+
+```bash
+# Kör qemu
+runqemu qemux86-64 nographic
+```
+
+#### Alternativ 2 - Nedladdad image
+
+Ladda ner image och packa up i projektets mapp.
+
+```bash
+# Kör qemu med imagen
+runqemu qemux86-64 nographic /yocto/project/core-image-base-qemux86-64.rootfs.ext4
+```
+
+Du ska nu vara inne i QEMU emulatorn. Lösenord för inloggning är `root`.
+
+För att avsluta QEMU tryck först `CTRL + A` sen `X` eller Forsätt med nästa steg.
+
+### Steg 2 - Starta Bluetooth
+
+Du ska nu vara inne i QEMU emulatorn efter **Steg 1**.
+
+Använd [systemd](https://man7.org/linux/man-pages/man1/systemd.1.html):
+
+```bash
+# Kolla att "bluetooth" körs
+systemctl status bluetooth
+
+# Om inte, starta
+systemctl start bluetooth
+```
+
+### Steg 3 - Kolla loggar
+
+Forsätt inne i QEMU efter **Steg 2**.
+Detta steg gör inget. Det bara kollar att allt fungerar.
+
+```bash
+# Kika i loggen för systemd tjänsten "bluetooth" med -u
+journalctl -u bluetooth
+
+# Kolla även i systemets logg med dmesg
+# För att inte visa allt, pipa dmesg till grep med "-i bluetooth"
+dmesg | grep -i bluetooth
+```
+
+Det bör inte ha funnits några fel i loggarna.
+
+### Steg 4 - Starta virtuella Bluetooth enheter
+
+Forsätt inne i QEMU efter **Steg 2** eller **Steg 3**
+
+`btvirt` startar virtuella bluetoothenheter.
+Vi kör med BLE (Bluetooth LE (Low Energy)) som med i Bluetooth 4.
+Det finns också Bluetooth classic.
+
+```bash
+# btvirt är blockande och kommer att köras i "foreground" 
+btvirt -U2
+
+# Stoppa btvirt processen och flytta den bakgrunden
+# Tryck: CTRL + Z
+
+# Kolla att processen finns i bakgrunden
+jobs
+
+# Forsätt btvirt processen i bakgrunden
+bg
+
+# Kolla att btvirt körs i bakgrunden
+jobs
+```
+
+Det är även möjligt att starta en process direkt i bakgrunden med t.ex: `btvirt -U2 &`.
+
+### Steg 5 - BluetoothCTL
+
+I detta steg ska vi ansluta bluetooth enhterna till varandra.
+Kör vidare i QEMU
+
+```bash
+# Starta tmux
+tmux
+
+# Dela skärmen i två "panes"
+# Tryck CTRL + B and then %
+
+# Kör igång bluetoothCTL consollen
+bluetoothctl
+
+# Visa bluetooth enheterna
+list
+# Notera MAC adressen för enheten som inte är default
+
+# Byt till andra sidan i tmux
+# Tryck CTRL + B och sen →
+
+# Öppna bluetoothctl på högra sidan
+bluetoothctl
+
+# Välj den andra MAC addressen (byt ut på raden nedan)
+select 00:AA:01:00:00:01 
+
+# Visa egenskaperna
+show
+
+# Hoppa tillbaka till första panelen
+# Tryck CTRL + B och sen ←
+
+# Visa egenskaperna i första panelen också
+show
+```
+
+Du bör nu köra tmux med två paneler som kör bluetoothctl med en default BT controller var. 
+
+### Steg 6 - Anslut enheterna till varandra
+
+Fortsätt från steg 5.
+
+Du kommer behöva hoppa mellan panelerna i `tmux`.
+
+1. Starta båda BT enheterna `power on`
+2. Starta den ena som discoverable (advertising) med `discoverable on`
+   * Detta är _peripheral_ enheten. Den än är even servern. 
+3. Sök efter enheter med den andra: `scan on`
+   * Detta är _central_ enheten. Den är även klienten.
+4. Enheterna hittar varandra. Kan behövas omstart av systemet annars.
+4. Parkoppla med _central_ enheten. Den som scannade. Kör: `pair` (MAC adress)
+5. Verifera parkopplingen. En fråga ska dyka upp.
+6. Lita på enheten med _central_ enheten: `trust` (MAC adress)
+7. Anslut med _central_ till _peripheral_: `connect` (MAC adress)
+
+Här tar tyvärr linux delen av övningen slut då jag inte lyckas få de virtuella btvirt enheterna att ansluta till varandra. Någon som har någon idè varför?
+
+Fortsätt gärna i python med Bleak på egna datorn om möjligt. Testa skapa en _peripheral_ och en _central_.
+
+Alternativt, hoppa över till Zephyr och Renode och gå igenom denna guide [Developing and testing BLE products on nRF52840 in Renode and Zephyr](https://renode.io/news/developing-and-testing-ble-on-nrf52840-with-renode-and-zephyr/). Använd gärna [ZephyrDevContainer](https://github.com/nakerlund/ZephyrDevContainer) som bas för att bygga Zephyr samplen som föreslås i guiden.
+
 ## Länkar
+
+### Webhooks
+- [webhook.site](https://webhook.site/) 
+
+### Yocto and Building
 - [Yocto Manual (Scarthgap 5.04)](https://docs.yoctoproject.org/5.0.4/)
 - [Repo](https://source.android.com/docs/setup/reference/repo)
+
+### Youtube - Linux
+- [Tmux in 100 seconds](https://www.youtube.com/watch?v=vtB1J_zCv8I&t=172s)
+- [100+ Linux Things you Need to Know](https://www.youtube.com/watch?v=LKCVKw9CzFo)
 - [YouTube - Raspberry Pi Serial Connect to USB via FTDI](https://www.youtube.com/watch?v=ONvNtz2w-qE)
-- [webhook.site](https://webhook.site/) 
+- [Wireshark](https://www.youtube.com/watch?v=a_4MjV_-7Sw)
+
+### Linux CLI Övningar
+- [Linux Journey](https://linuxjourney.com/)
+- [Labex Labs](https://github.com/labex-labs/linux-basic-commands-practice-online)
