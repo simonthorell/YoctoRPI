@@ -1,0 +1,6 @@
+# build folder cache
+/cache
+/hashserve.sock
+/bitbake.sock
+# log
+/*.log

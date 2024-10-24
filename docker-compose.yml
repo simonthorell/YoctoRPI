@@ -13,22 +13,20 @@ services:
     volumes:
       - .:/yocto/project
       - yocto_repo:/yocto/.repo
-      - yocto_build:/yocto/build
       - yocto_sources:/yocto/sources
       - yocto_dl:/yocto/dl
       - yocto_sstate:/yocto/sstate
       - yocto_tmp:/yocto/tmp
     devices:
       - /dev/net/tun
+      - /dev/kvm
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    privileged: true
     command: sleep infinity
 
 volumes:
   yocto_repo:
-  yocto_build:
   yocto_sources:
   yocto_dl:
   yocto_sstate:

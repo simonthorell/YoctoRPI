@@ -1,7 +1,7 @@
 {
     "cSpell.words": [
     ],
-    "bitbake.pathToBuildFolder": "/yocto/build",
+    "bitbake.pathToBuildFolder": "/yocto/project",
     "bitbake.pathToEnvScript": "/yocto/sources/poky/oe-init-build-env",
     "bitbake.pathToBitbakeFolder": "/yocto/sources/poky/bitbake",
     "files.associations": {
