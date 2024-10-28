@@ -1,0 +1,7 @@
+[Unit]
+Description=Hello Internet Service
+[Service]
+ExecStart=/usr/bin/wget --post-data="Hello from Yocto" https://webhook.site/5e1802b4-1eed-417f-a2a0-81e934930317
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
