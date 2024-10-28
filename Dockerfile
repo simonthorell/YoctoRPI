@@ -60,8 +60,8 @@ RUN apt update && \
     # Build tools
     # Texinfo is used to generate documentation (required by the GNU project, part of some Yocto recipes)
     texinfo \
-    # GCC-multilib compiles code for multiple architectures (needed for cross-compilation in Yocto)
-    gcc-multilib \
+    # GCC-multilib compiles code for multiple architectures (needed for cross-compilation in Yocto) - does not work with aarch64!
+    # gcc-multilib \
     # Build-essential is a collection of packages needed to compile software (fundamental to Yocto's build process)
     build-essential \
     # Chrpath is used to modify the rpath in ELF executables (useful for fixing binary paths after Yocto builds)

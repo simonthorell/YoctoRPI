@@ -3,7 +3,7 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "devcontainer",
   "workspaceFolder": "/yocto/project",
-  "postCreateCommand": "sudo chown -R $(id -u):$(id -g) /yocto/project",
+  "postCreateCommand": "sudo chown -R dev:dev /yocto/project",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -15,5 +15,6 @@
         "ms-python.python"
       ]
     }
-  }
+  },
+  "remoteUser": "root"
 }

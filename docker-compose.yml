@@ -5,8 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        USER_UID: "${UID:-1000}"  # Use the UID of the host user or default to 1000
-        USER_GID: "${GID:-1000}"  # Use the GID of the host user or default to 1000
+        USER_UID: "${UID:-1000}" # Use the UID of the host user or default to 1000
+        USER_GID: "${GID:-1000}" # Use the GID of the host user or default to 1000
     user: "dev"
     environment:
       - TEMPLATECONF=/yocto/project/meta-lager/conf/templates/custom
@@ -17,9 +17,9 @@ services:
       - yocto_dl:/yocto/dl
       - yocto_sstate:/yocto/sstate
       - yocto_tmp:/yocto/tmp
-    devices:
-      - /dev/net/tun
-      - /dev/kvm
+    # devices:
+    #   - /dev/net/tun
+    #   - /dev/kvm
     cap_add:
       - NET_ADMIN
       - NET_RAW
